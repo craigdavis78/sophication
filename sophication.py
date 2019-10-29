@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-A program for Sophia to practice her multiplication tables.
-"""
+"""A program for Sophia to practice her multiplication tables."""
 # Python Standard Library Imports
 import argparse
 from itertools import product
@@ -21,7 +19,7 @@ except ImportError:
 # TODO: Use system call to speak so it doesn't block
 
 def speak_string(string_to_speak: str) -> None:
-    """Speak a string (assuming win32com in installed)"""
+    """Speak a string (assuming win32com in installed)."""
     # Put this function in a try/except because it is called from a subprocess
     try:
         if speak:
@@ -32,7 +30,7 @@ def speak_string(string_to_speak: str) -> None:
 
 def get_random_table(include_list: List[int] = [i for i in range(10)],
                      max_val: int = 10):
-    """Creates a list of randomly sorted tuples for multiplication.
+    """Create a list of randomly sorted tuples for multiplication.
 
     INPUTS:
     include_list: The integers of multiplication to practice.
@@ -58,7 +56,9 @@ def print_and_speak(phrase: str, end: str = '\n',
                     replace_speech: List[str] = ['', ''],
                     fore_color=None, back_color=None,
                     speak_phrase=False) -> None:
-    """Print the "phrase" with the end of line character "endl". Then speak
+    """Print an optionally speak the phrase.
+
+    Print the "phrase" with the end of line character "endl". Then speak
     the phrase Replace the characters replace_speech[0] with replace[1] before
     speaking the phrase
     """
@@ -71,8 +71,7 @@ def print_and_speak(phrase: str, end: str = '\n',
 
 
 def speak_all_done_info(num_correct, num_attempts, wrong_answers):
-    """Print and speak info when program completes
-    """
+    """Print and speak info when program completes."""
     print_and_speak('\nALL DONE!')
     print_and_speak(f'\nYou got {num_correct:2} out of {num_attempts:d}.')
     print_and_speak(f'Your score is {num_correct/num_attempts*100:.1f}% ',
@@ -83,7 +82,9 @@ def speak_all_done_info(num_correct, num_attempts, wrong_answers):
 
 
 def convert_str_to_int(answer: str):
-    """Convert a string to an integer. Print and speak the error if 'answer'
+    """Convert a str to an int and print_and_speak on error.
+
+    Convert a string to an integer.  Print and speak the error if 'answer'
     is not valid to be converted to an integer
     """
     try:
@@ -109,10 +110,11 @@ def serve_cards(parser_args):
                 print_and_speak(f'{val[0]:d} x {val[1]:d} = ', end='',
                                 replace_speech=[' x ', ' times '])
                 num_attempts = idx + 1  # The number of cards attempted
-                answer = convert_str_to_int(input())
+                answer = convert_str_to_int(input())  # nosec
                 correct_answer = val[0]*val[1]
                 if answer == correct_answer:
                     print_and_speak('CORRECT!', replace_speech=['!', ''])
+
                     if num_tries == 0:
                         num_correct += 1
                         correct_answers.append(val)

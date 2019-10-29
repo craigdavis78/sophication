@@ -1,3 +1,5 @@
 # Ignore python virtual environment folder
 env37
 env38
+.mypy_cache/
+.vscode/
