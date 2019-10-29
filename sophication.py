@@ -6,7 +6,7 @@ from itertools import product
 from multiprocessing import Process
 from sys import exit as sys_exit
 from random import sample
-from typing import List
+from typing import List, Tuple, Union
 
 # Third Party Library Imports
 try:
@@ -18,18 +18,8 @@ except ImportError:
 
 # TODO: Use system call to speak so it doesn't block
 
-def speak_string(string_to_speak: str) -> None:
-    """Speak a string (assuming win32com in installed)."""
-    # Put this function in a try/except because it is called from a subprocess
-    try:
-        if speak:
-            speak.speak(string_to_speak)
-    except KeyboardInterrupt:
-        pass
-
-
 def get_random_table(include_list: List[int] = [i for i in range(10)],
-                     max_val: int = 10):
+                     max_val: int = 10) -> List[Tuple[int, int]]:
     """Create a list of randomly sorted tuples for multiplication.
 
     INPUTS:
@@ -52,10 +42,20 @@ def get_random_table(include_list: List[int] = [i for i in range(10)],
     return return_list
 
 
+def speak_string(string_to_speak: str) -> None:
+    """Speak a string (assuming win32com in installed)."""
+    # Put this function in a try/except because it is called from a subprocess
+    try:
+        if speak:
+            speak.speak(string_to_speak)
+    except KeyboardInterrupt:
+        pass
+
+
 def print_and_speak(phrase: str, end: str = '\n',
                     replace_speech: List[str] = ['', ''],
                     fore_color=None, back_color=None,
-                    speak_phrase=False) -> None:
+                    speak_phrase: bool = False) -> None:
     """Print an optionally speak the phrase.
 
     Print the "phrase" with the end of line character "endl". Then speak
@@ -70,7 +70,8 @@ def print_and_speak(phrase: str, end: str = '\n',
     return speak_phrase
 
 
-def speak_all_done_info(num_correct, num_attempts, wrong_answers):
+def speak_all_done_info(num_correct: int, num_attempts: int,
+                        wrong_answers: int) -> None:
     """Print and speak info when program completes."""
     print_and_speak('\nALL DONE!')
     print_and_speak(f'\nYou got {num_correct:2} out of {num_attempts:d}.')
@@ -81,7 +82,7 @@ def speak_all_done_info(num_correct, num_attempts, wrong_answers):
         print(f'{wrong[0]:d} x {wrong[1]:d} = {wrong[0]*wrong[1]:d}')
 
 
-def convert_str_to_int(answer: str):
+def convert_str_to_int(answer: str) -> Union[int, None]:
     """Convert a str to an int and print_and_speak on error.
 
     Convert a string to an integer.  Print and speak the error if 'answer'
@@ -92,14 +93,16 @@ def convert_str_to_int(answer: str):
     except ValueError:
         print_and_speak(f'{answer} is not a valid input. Please ' +
                         'enter an integer')
+        answer = None
     return answer
 
 
-def serve_cards(parser_args):
+def serve_cards(integers_to_practice: List[str],
+                player_name: str = '') -> None:
     """Generate and serve the multiplication tables."""
-    table = get_random_table(include_list=parser_args.integers)
-    if args.name != '':
-        speak.Speak(f"Hello {args.name:s}. Let's get started!")
+    table = get_random_table(include_list=integers_to_practice)
+    if player_name != '':
+        print_and_speak(f"Hello {player_name:s}. Let's get started!")
     num_correct = 0  # The number correct on the first try
     correct_answers = []
     wrong_answers = []
@@ -136,6 +139,6 @@ if __name__ == '__main__':
     parser.add_argument('integers', type=int, nargs='+')
     parser.add_argument('--name', type=str)
     args = parser.parse_args()
-    serve_cards(args)
+    serve_cards(args.integers, player_name=args.name)
     # Exit cleanly
     sys_exit(0)
