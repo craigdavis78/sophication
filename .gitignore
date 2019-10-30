@@ -3,3 +3,4 @@ env37
 env38
 .mypy_cache/
 .vscode/
+__pycache__/
