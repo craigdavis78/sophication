@@ -10,8 +10,8 @@ from typing import List, Tuple, Union, Any
 
 # Third Party Library Imports
 try:
-    import win32com.client as wincl
-    speak = wincl.Dispatch("SAPI.SpVoice")
+    import win32com.client as wincl  # type: ignore
+    speak = wincl.Dispatch("SAPI.SpVoice")  # type: ignore
 except ImportError:
     speak = None
 
@@ -63,6 +63,7 @@ def print_and_speak(phrase: str, end: str = '\n',
     speaking the phrase
     """
     print(phrase, flush=True, end=end)
+    phrase_spoken = phrase
     if speak_phrase:
         phrase_spoken = phrase.replace(replace_speech[0], replace_speech[1])
         p = Process(target=speak_string, args=(phrase_spoken, ))
@@ -83,9 +84,11 @@ def speak_all_done_info(num_correct: int,
                     replace_speech=['%', ' percent'])
     if wrong_answers:
         print_and_speak('You got these wrong:')
-        # wrong: Union[Tuple[int, int], Tuple[Any, ...]]
-        for wrong in set(wrong_answers):
-            print(f'{wrong[0]:d} x {wrong[1]:d} = {wrong[0]*wrong[1]:d}')
+        wrong: Tuple[int, int]
+        # TODO: Fix the mypy error ignored below.
+        for wrong in set(wrong_answers):  # type: ignore
+            print(f'{wrong[0]:d} x {wrong[1]:d} ' +
+                  f'= {wrong[0]*wrong[1]:d}')
 
 
 def convert_str_to_int(answer: str) -> Union[int, None]:
