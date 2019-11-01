@@ -16,7 +16,41 @@ except ImportError:
     speak = None
 
 
-# TODO: Use system call to speak so it doesn't block
+def get_random_products(max_val: int) -> \
+        List[Tuple[Any, ...]]:
+    """Create a list of randomly sampled Cartesian product with repeat of 2.
+
+    Creates a list of randomly sampled cartesian products up to the value of
+    max_val.
+
+    Example
+    Note that the results will not necessarily be in this order.
+
+    >>> get_random_products(2)
+    [(0, 0), (0, 1), (1, 0), (1, 1)]
+
+    """
+    nums = [i for i in range(max_val)]
+    prods = [val for val in product(nums, repeat=2)]
+    return sample(prods, len(prods))
+
+
+def filter_tuple_list(include_list: List[int],
+                      tuple_list: List[Tuple[Any, ...]]) -> \
+        List[Tuple[Any, ...]]:
+    """Filter tuples of integers by include_list.
+
+    Filters tuple_list to include only the tuples that contain integers from
+    include_list.
+    """
+    return_list = []
+    for prod in tuple_list:
+        for inc in include_list:
+            if inc in prod:
+                return_list.append(prod)
+                break
+    return return_list
+
 
 def get_random_table(include_list: List[int] = [i for i in range(10)],
                      max_val: int = 10) -> List[Tuple[Any, ...]]:
@@ -30,15 +64,10 @@ def get_random_table(include_list: List[int] = [i for i in range(10)],
     Returns a list of randomly sorted integers based on include_list and
     max_val
     """
-    nums = [i for i in range(max_val)]
-    prods = [val for val in product(nums, repeat=2)]
-    random_prods = sample(prods, len(prods))
-    return_list = []
-    for prod in random_prods:
-        for inc in include_list:
-            if inc in prod:
-                return_list.append(prod)
-                break
+    # Get a list of randomly sampled tuples from 0 to max_val.
+    random_products = get_random_products(max_val)
+    # Filter random_products for those that contain integers from include_list.
+    return_list = filter_tuple_list(include_list, random_products)
     return return_list
 
 
