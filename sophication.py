@@ -52,7 +52,7 @@ def filter_tuple_list(include_list: List[int],
     return return_list
 
 
-def get_random_table(include_list: List[int] = [i for i in range(10)],
+def get_random_table(include_list: List[int],
                      max_val: int = 10) -> List[Tuple[Any, ...]]:
     """Create a list of randomly sorted tuples for multiplication.
 
@@ -114,7 +114,6 @@ def speak_all_done_info(num_correct: int,
     if wrong_answers:
         print_and_speak('You got these wrong:')
         wrong: Tuple[int, int]
-        # TODO: Fix the mypy error ignored below.
         for wrong in set(wrong_answers):  # type: ignore
             print(f'{wrong[0]:d} x {wrong[1]:d} ' +
                   f'= {wrong[0]*wrong[1]:d}')
