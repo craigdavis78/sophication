@@ -6,14 +6,33 @@ from itertools import product
 from multiprocessing import Process
 from sys import exit as sys_exit
 from random import sample
-from typing import List, Tuple, Union, Any
+from typing import List, Tuple, Union, Any, NewType
 
 # Third Party Library Imports
+from colorama import Fore, Back, init as colorama_init
 try:
     import win32com.client as wincl  # type: ignore
     speak = wincl.Dispatch("SAPI.SpVoice")  # type: ignore
 except ImportError:
     speak = None
+
+# Local Application/Library Imports
+# NONE
+
+# Must initialize colorama
+colorama_init(convert=True)
+
+# Define some module constants
+CLR_FORE_CORRECT = Fore.GREEN
+CLR_BACK_CORRECT = Back.WHITE
+CLR_FORE_WRONG = Fore.RED
+CLR_BACK_WRONG = Back.YELLOW
+CLR_FORE_RESET = Fore.RESET
+CLR_BACK_RESET = Back.RESET
+
+# Define some custom types
+ForeColorType = NewType('ForeColorType', str)
+BackColorType = NewType('BackColorType', str)
 
 
 def get_random_products(max_val: int) -> \
@@ -81,19 +100,29 @@ def speak_string(string_to_speak: str) -> None:
         pass
 
 
-def print_and_speak(phrase: str, end: str = '\n',
+def print_and_speak(phrase: str,
+                    end: str = '\n',
                     replace_speech: List[str] = ['', ''],
-                    fore_color=None, back_color=None,
-                    speak_phrase: bool = False) -> str:
+                    forecolor: Union[None, ForeColorType] = None,
+                    backcolor: Union[None, BackColorType] = None) \
+                    -> Union[None, str]:
     """Print an optionally speak the phrase.
 
     Print the "phrase" with the end of line character "endl". Then speak
     the phrase Replace the characters replace_speech[0] with replace[1] before
     speaking the phrase
     """
-    print(phrase, flush=True, end=end)
-    phrase_spoken = phrase
-    if speak_phrase:
+    # Print the Phrase
+    phrase_printed = phrase
+    if forecolor:
+        phrase_printed = forecolor + phrase_printed + CLR_FORE_RESET
+    if backcolor:
+        phrase_printed = backcolor + phrase_printed + CLR_BACK_RESET
+    print(phrase_printed, flush=True, end=end)
+
+    # Speak the phrase
+    phrase_spoken: Union[None, str] = None
+    if speak is not None:
         phrase_spoken = phrase.replace(replace_speech[0], replace_speech[1])
         p = Process(target=speak_string, args=(phrase_spoken, ))
         p.start()
@@ -153,15 +182,18 @@ def serve_cards(integers_to_practice: List[int],
                 answer = convert_str_to_int(input())  # nosec
                 correct_answer = val[0]*val[1]
                 if answer == correct_answer:
-                    print_and_speak('CORRECT!', replace_speech=['!', ''])
-
+                    print_and_speak('CORRECT!', replace_speech=['!', ''],
+                                    forecolor=ForeColorType(CLR_FORE_CORRECT),
+                                    backcolor=BackColorType(CLR_BACK_CORRECT))
                     if num_tries == 0:
                         num_correct += 1
                         correct_answers.append(val)
                     break
                 else:
                     print_and_speak('Wrong!  :(',
-                                    replace_speech=['!  :(', ''])
+                                    replace_speech=['!  :(', ''],
+                                    forecolor=ForeColorType(CLR_FORE_WRONG),
+                                    backcolor=BackColorType(CLR_BACK_WRONG))
                     wrong_answers.append(val)
                     num_tries += 1
         except KeyboardInterrupt:
