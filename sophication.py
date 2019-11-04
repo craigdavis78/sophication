@@ -10,11 +10,7 @@ from typing import List, Tuple, Union, Any, NewType
 
 # Third Party Library Imports
 from colorama import Fore, Back, init as colorama_init
-try:
-    import win32com.client as wincl  # type: ignore
-    speak = wincl.Dispatch("SAPI.SpVoice")  # type: ignore
-except ImportError:
-    speak = None
+import pyttsx3
 
 # Local Application/Library Imports
 # NONE
@@ -94,8 +90,10 @@ def speak_string(string_to_speak: str) -> None:
     """Speak a string (assuming win32com in installed)."""
     # Put this function in a try/except because it is called from a subprocess
     try:
-        if speak:
-            speak.speak(string_to_speak)
+        engine = pyttsx3.init()
+        engine.say(string_to_speak)
+        engine.runAndWait()
+        engine.stop()
     except KeyboardInterrupt:
         pass
 
