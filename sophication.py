@@ -10,7 +10,10 @@ from typing import List, Tuple, Union, Any, NewType
 
 # Third Party Library Imports
 from colorama import Fore, Back, init as colorama_init
-import pyttsx3
+try:
+    import pyttsx3
+except ImportError:
+    pyttsx3 = None
 
 # Local Application/Library Imports
 # NONE
@@ -102,7 +105,8 @@ def print_and_speak(phrase: str,
                     end: str = '\n',
                     replace_speech: List[str] = ['', ''],
                     forecolor: Union[None, ForeColorType] = None,
-                    backcolor: Union[None, BackColorType] = None) \
+                    backcolor: Union[None, BackColorType] = None,
+                    run_in_own_process=True) \
                     -> Union[None, str]:
     """Print an optionally speak the phrase.
 
@@ -120,10 +124,13 @@ def print_and_speak(phrase: str,
 
     # Speak the phrase
     phrase_spoken: Union[None, str] = None
-    if speak is not None:
+    if pyttsx3 is not None:
         phrase_spoken = phrase.replace(replace_speech[0], replace_speech[1])
-        p = Process(target=speak_string, args=(phrase_spoken, ))
-        p.start()
+        if run_in_own_process:
+            p = Process(target=speak_string, args=(phrase_spoken, ))
+            p.start()
+        else:
+            speak_string(phrase_spoken)
     return phrase_spoken
 
 
@@ -134,12 +141,14 @@ def speak_all_done_info(num_correct: int,
                                              List[Tuple[Any, ...]]]) -> \
                         None:
     """Print and speak info when program completes."""
-    print_and_speak('\nALL DONE!')
-    print_and_speak(f'\nYou got {num_correct:2} out of {num_attempts:d}.')
+    print_and_speak('\nALL DONE!', run_in_own_process=False)
+    print_and_speak(f'\nYou got {num_correct:2} out of {num_attempts:d}.',
+                    run_in_own_process=False)
     print_and_speak(f'Your score is {num_correct/num_attempts*100:.1f}% ',
-                    replace_speech=['%', ' percent'])
+                    replace_speech=['%', ' percent'],
+                    run_in_own_process=False)
     if wrong_answers:
-        print_and_speak('You got these wrong:')
+        print_and_speak('You got these wrong:', run_in_own_process=False)
         wrong: Tuple[int, int]
         for wrong in set(wrong_answers):  # type: ignore
             print(f'{wrong[0]:d} x {wrong[1]:d} ' +
@@ -165,7 +174,8 @@ def serve_cards(integers_to_practice: List[int],
     """Generate and serve the multiplication tables."""
     table = get_random_table(include_list=integers_to_practice)
     if player_name != '':
-        print_and_speak(f"Hello {player_name:s}. Let's get started!")
+        print_and_speak(f"Hello {player_name:s}. Let's get started!",
+                        run_in_own_process=False)
     num_correct = 0  # The number correct on the first try
     correct_answers = []
     wrong_answers: Union[None, List[Tuple[Any, ...]]]
@@ -182,7 +192,8 @@ def serve_cards(integers_to_practice: List[int],
                 if answer == correct_answer:
                     print_and_speak('CORRECT!', replace_speech=['!', ''],
                                     forecolor=ForeColorType(CLR_FORE_CORRECT),
-                                    backcolor=BackColorType(CLR_BACK_CORRECT))
+                                    backcolor=BackColorType(CLR_BACK_CORRECT),
+                                    run_in_own_process=False)
                     if num_tries == 0:
                         num_correct += 1
                         correct_answers.append(val)
@@ -191,7 +202,8 @@ def serve_cards(integers_to_practice: List[int],
                     print_and_speak('Wrong!  :(',
                                     replace_speech=['!  :(', ''],
                                     forecolor=ForeColorType(CLR_FORE_WRONG),
-                                    backcolor=BackColorType(CLR_BACK_WRONG))
+                                    backcolor=BackColorType(CLR_BACK_WRONG),
+                                    run_in_own_process=False)
                     wrong_answers.append(val)
                     num_tries += 1
         except KeyboardInterrupt:
