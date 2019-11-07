@@ -11,8 +11,8 @@ install:
 script:
   - pytest
 
-  # safelist
-  branches:
-    only:
-      - develop
-      - master
+# safelist
+branches:
+  only:
+    - develop
+    - master
