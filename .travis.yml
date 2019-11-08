@@ -1,15 +1,12 @@
-os: linux
-
 # safelist
 branches:
   only:
     - develop
     - master
 
+# Python versions to test
 language: python
-  - "3.6"
   - "3.7"
-  - "3.8"
 
 # install dependencies
 install:
