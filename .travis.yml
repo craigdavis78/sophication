@@ -1,3 +1,5 @@
+os: windows
+
 # safelist
 branches:
   only:
