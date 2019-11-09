@@ -1,15 +1,39 @@
 language: python            # this works for Linux but is an error on macOS or Windows
+
 git:
-  depth: 3
+  depth: 3                  # This will clone the repo to depth specified. Useful only when performing git operation. Max is 50.
+
+branches:
+  only:                     # branch safelist
+    - master
+    - develop
+  except:                   # branch blocklist. If both safelist and blocklist included, safelist takes precedence.
+    - legacy
+    - experimental
+
 jobs:
   include:
-    - name: "Python 3.7.4 on Windows"
+    - name: "Python 3.8 on Windows"
       os: windows           # Windows 10.0.17134 N/A Build 17134
       language: shell       # 'language: python' is an error on Travis CI Windows
       before_install:
         - choco install python --version 3.8.0
         - python -m pip install --upgrade pip
       env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
-install:
-  - pip3 install --upgrade pip  # all three OSes agree about 'pip3'
-  - python --version
+      install:
+        - pip3 install --upgrade pip
+        - python --version
+    - name: "Python 3.7.5 on Windows"
+      os: windows
+      language: shell
+      before_install:
+        - choco install python --version 3.7.5
+        - python -m pip install --uprade pip
+      env: PATH=/c/Python37:/c/Python/37/Scripts:$PATH
+      install:
+        - pip3 install --upgrade pip
+        - python --version
+
+#install:
+#  - pip3 install --upgrade pip  # all three OSes agree about 'pip3'
+#  - python --version
