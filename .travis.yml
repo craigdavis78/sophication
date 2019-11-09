@@ -1,4 +1,6 @@
 language: python            # this works for Linux but is an error on macOS or Windows
+git:
+  depth: 3
 jobs:
   include:
     - name: "Python 3.7.4 on Windows"
