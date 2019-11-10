@@ -19,7 +19,7 @@ jobs:
       before_install:
         - choco install python --version 3.6.8
         - python -m pip install --upgrade pip
-        pip install requirements.txt
+        - pip install requirements.txt
       env: PATH=/c/Python36:/c/Python/36/Scripts:$PATH
       install:
         - python --version
