@@ -36,10 +36,10 @@ BackColorType = NewType('BackColorType', str)
 
 def get_random_products(max_val: int) -> \
         List[Tuple[Any, ...]]:
-    """Create a list of randomly sampled Cartesian product with repeat of 2.
+    """Create a list of randomly sampled Cartesian product tuples.
 
-    Creates a list of randomly sampled cartesian products up to the value of
-    max_val.
+    Creates a list of randomly sampled cartesian products tuples up to the
+    value of max_val.
 
     Example
     Note that the results will not necessarily be in this order.
