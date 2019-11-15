@@ -4,3 +4,7 @@ env38
 .mypy_cache/
 .vscode/
 __pycache__/
+sophication.egg-info/
+.pytest_cache
+build/
+dist/
