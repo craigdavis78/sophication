@@ -6,7 +6,7 @@ with open("README.md", "r") as file_reader:
 
 setuptools.setup(
     name="sophication",
-    version="0.0.1",
+    version="0.0.2",
     author="Craig Davis",
     author_email="craigdavis78@gmail.com",
     description="A simple flash card program",
