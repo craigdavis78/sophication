@@ -9,13 +9,19 @@ from typing import Any, List, Tuple
 
 # Third Party Library Imports
 import pytest
+from colorama import Fore as fore_c, Back as back_c
+try:
+    import pyttsx3
+except ImportError:
+    pyttsx3 = None
 
 # Local Application/Library Imports
 from sophication.sophication import \
     filter_tuple_list, \
     get_random_products, \
     get_random_table, \
-    convert_str_to_int
+    convert_str_to_int, \
+    print_and_speak
 
 
 def test_filter_tuple_list() -> None:
@@ -84,3 +90,60 @@ def test_convert_str_to_int_stdout(test_input: str, expected: None,
     out, _ = capsys.readouterr()
     assert out == ''.join((f"{test_input} is not a valid input. ",  # nosec
                            "Please enter an integer\n"))
+
+
+PRINT_AND_SPEAK_TEST_VALS = \
+    [{'phrase': 'test phrase',
+      'end': '\n',
+      'replace_speech': ['', ''],
+      'forecolor': None,
+      'backcolor': None,
+      'run_in_own_process': False,
+      'return_val': 'test phrase',
+      'stdout_val': 'test phrase\n'},
+     {'phrase': 'test phrase to speak',
+      'end': '!',
+      'replace_speech': ['', ''],
+      'forecolor': None,
+      'backcolor': None,
+      'run_in_own_process': False,
+      'return_val': 'test phrase',
+      'stdout_val': 'test phrase!'},
+     {'phrase': 'test phrase',
+      'end': '\n',
+      'replace_speech': ['', ''],
+      'forecolor': fore_c.RED,
+      'backcolor': None,
+      'run_in_own_process': False,
+      'return_val': 'test phrase',
+      'stdout_val': 'test phrase\n'}
+     ]
+
+
+@pytest.mark.parametrize(
+    "test_input", PRINT_AND_SPEAK_TEST_VALS
+)
+def test_print_and_speak_phrase_spoken(test_input):
+    """Test return value for print_and_speak function."""
+    phrase = test_input.pop('phrase')
+    return_val = test_input.pop('return_val')
+    _ = test_input.pop('stdout_val')
+    if pyttsx3 is not None:
+        # Case when pyttsx3 can be imported
+        assert return_val == print_and_speak(phrase, **test_input)  # nosec
+    else:
+        # Case when pyttsx3 cannot be imported
+        assert None is print_and_speak(phrase, **test_input)  # nosec
+
+
+@pytest.mark.parametrize(
+    "test_input", PRINT_AND_SPEAK_TEST_VALS
+)
+def test_print_and_speak_phrase_printed(test_input, capsys):
+    """Test phrase printed to stdout."""
+    phrase = test_input.pop('phrase')
+    _ = test_input.pop('return_val')
+    stdout_val = test_input.pop('stdout_val')
+    _ = print_and_speak(phrase, **test_input)
+    out, _ = capsys.readouterr()
+    assert out == stdout_val  # nosec
