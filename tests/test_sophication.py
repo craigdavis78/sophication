@@ -6,6 +6,7 @@ TODO: write unit test for convert_str_to_int
 
 # Python Standard Library Imports
 from typing import Any, List, Tuple
+from inspect import signature
 
 # Third Party Library Imports
 import pytest
@@ -38,6 +39,19 @@ def test_filter_tuple_list() -> None:
     assert valid  # nosec
 
 
+def test_get_random_table() -> None:
+    """Values from include_list should be in returned values."""
+    max_val = 10
+    include_list = [1, 2, 3]
+    return_list = get_random_table(include_list, max_val)
+    for inc in include_list:
+        assert any([bool_val for bool_val in  # nosec
+                    [inc in ret_tup for ret_tup in return_list]])
+
+
+# #############################################################################
+# Tests for get_random_product
+
 def test_val_in_get_random_products() -> None:
     """Only specified random products should be returned."""
     max_vals = range(10)
@@ -58,15 +72,8 @@ def test_val_not_in_get_random_products() -> None:
                             for rand_prod in random_products])
 
 
-def test_get_random_table() -> None:
-    """Values from include_list should be in returned values."""
-    max_val = 10
-    include_list = [1, 2, 3]
-    return_list = get_random_table(include_list, max_val)
-    for inc in include_list:
-        assert any([bool_val for bool_val in  # nosec
-                    [inc in ret_tup for ret_tup in return_list]])
-
+# #############################################################################
+# Tests for convert_str_to_int
 
 @pytest.mark.parametrize(
     "test_input, expected",
@@ -92,6 +99,10 @@ def test_convert_str_to_int_stdout(test_input: str, expected: None,
                            "Please enter an integer\n"))
 
 
+# #############################################################################
+# Tests for print_and_speak
+
+# Inputs for test_print_and_speak_*
 PRINT_AND_SPEAK_TEST_VALS = \
     [{'phrase': 'test phrase',
       'end': '\n',
@@ -103,21 +114,35 @@ PRINT_AND_SPEAK_TEST_VALS = \
       'stdout_val': 'test phrase\n'},
      {'phrase': 'test phrase to speak',
       'end': '!',
-      'replace_speech': ['', ''],
+      'replace_speech': ['phrase', 'test phrase'],
       'forecolor': None,
-      'backcolor': None,
+      'backcolor': back_c.GREEN,
       'run_in_own_process': False,
-      'return_val': 'test phrase',
-      'stdout_val': 'test phrase!'},
+      'return_val': 'test test phrase',
+      'stdout_val': back_c.GREEN + 'test phrase!' + back_c.RESET},
      {'phrase': 'test phrase',
       'end': '\n',
       'replace_speech': ['', ''],
       'forecolor': fore_c.RED,
-      'backcolor': None,
+      'backcolor': back_c.LIGHTWHITE_EX,
       'run_in_own_process': False,
-      'return_val': 'test phrase',
+      'return_val': (back_c.LIGHTWHITE_EX + fore_c.RED + 'test phrase' +
+                     fore_c.RESET + back_c.RESET),
       'stdout_val': 'test phrase\n'}
      ]
+
+
+# Name of the parameters with default argument of the print_and_speak function.
+P_AND_S_PARAMS_KEYS = \
+    [val for val in list(signature(print_and_speak).parameters.keys())
+     if val is not 'phrase']
+
+
+def get_test_print_and_speak_data(test_input):
+    """Extract print_and_speak function inputs from test_input dictionary."""
+    return (test_input['phrase'], test_input['return_val'],
+            test_input['stdout_val'],
+            {key: test_input[key] for key in P_AND_S_PARAMS_KEYS})
 
 
 @pytest.mark.parametrize(
@@ -125,15 +150,14 @@ PRINT_AND_SPEAK_TEST_VALS = \
 )
 def test_print_and_speak_phrase_spoken(test_input):
     """Test return value for print_and_speak function."""
-    phrase = test_input.pop('phrase')
-    return_val = test_input.pop('return_val')
-    _ = test_input.pop('stdout_val')
+    phrase, return_val, _, input_dict = \
+        get_test_print_and_speak_data(test_input)
     if pyttsx3 is not None:
         # Case when pyttsx3 can be imported
-        assert return_val == print_and_speak(phrase, **test_input)  # nosec
+        assert return_val == print_and_speak(phrase, **input_dict)  # nosec
     else:
         # Case when pyttsx3 cannot be imported
-        assert None is print_and_speak(phrase, **test_input)  # nosec
+        assert None is print_and_speak(phrase, **input_dict)  # nosec
 
 
 @pytest.mark.parametrize(
@@ -141,9 +165,9 @@ def test_print_and_speak_phrase_spoken(test_input):
 )
 def test_print_and_speak_phrase_printed(test_input, capsys):
     """Test phrase printed to stdout."""
-    phrase = test_input.pop('phrase')
-    _ = test_input.pop('return_val')
-    stdout_val = test_input.pop('stdout_val')
-    _ = print_and_speak(phrase, **test_input)
+    phrase, _, stdout_val, input_dict = \
+        get_test_print_and_speak_data(test_input)
+    print(phrase)
+    _ == print_and_speak(phrase, **input_dict)
     out, _ = capsys.readouterr()
     assert out == stdout_val  # nosec
