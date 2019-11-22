@@ -106,7 +106,8 @@ def print_and_speak(phrase: str,
                     replace_speech: List[str] = ['', ''],
                     forecolor: Union[None, ForeColorType] = None,
                     backcolor: Union[None, BackColorType] = None,
-                    run_in_own_process=True) \
+                    run_in_own_process=True,
+                    speak: bool = True) \
                     -> Union[None, str]:
     """Print an optionally speak the phrase.
 
@@ -126,11 +127,13 @@ def print_and_speak(phrase: str,
     phrase_spoken: Union[None, str] = None
     if pyttsx3 is not None:
         phrase_spoken = phrase.replace(replace_speech[0], replace_speech[1])
-        if run_in_own_process:
-            p = Process(target=speak_string, args=(phrase_spoken, ))
-            p.start()
-        else:
-            speak_string(phrase_spoken)
+        # The bool speak is an override for testing
+        if speak:
+            if run_in_own_process:
+                p = Process(target=speak_string, args=(phrase_spoken, ))
+                p.start()
+            else:
+                speak_string(phrase_spoken)
     return phrase_spoken
 
 
@@ -152,7 +155,7 @@ def speak_all_done_info(num_correct: int,
         wrong: Tuple[int, int]
         for wrong in set(wrong_answers):  # type: ignore
             print(f'{wrong[0]:d} x {wrong[1]:d} ' +
-                  f'= {wrong[0]*wrong[1]:d}')
+                  f'= {wrong[0]*wrong[1]:d}', flush=True)
 
 
 def convert_str_to_int(answer: str) -> Union[int, None]:
