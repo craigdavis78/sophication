@@ -8,3 +8,7 @@ sophication.egg-info/
 .pytest_cache
 build/
 dist/
+docs/build/
+docs/source/
+docs/Makefile
+docs/make.bat

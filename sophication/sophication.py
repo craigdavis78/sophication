@@ -205,23 +205,36 @@ def speak_all_done_info(num_correct: int,
                   f'= {wrong[0]*wrong[1]:d}', flush=True)
 
 
-def convert_str_to_int(answer: str) -> Union[int, None]:
+def convert_str_to_int(str_to_convert: str) -> Union[int, None]:
     """Convert a str to an int and print_and_speak on error.
 
     Convert a string to an integer.  Print and speak the error if 'answer'
-    is not valid to be converted to an integer
+    is not valid to be converted to an integer.
+
+    :param str_to_convert: The string to attempt to convert to an integer.
+    :type str_to_convert: None
+    :return: The converted string if successful, None if not successful.
+    :rtype: Union[int, None]
     """
     try:
-        return int(answer)
+        return int(str_to_convert)
     except ValueError:
-        print_and_speak(f'{answer} is not a valid input. Please ' +
+        print_and_speak(f'{str_to_convert} is not a valid input. Please ' +
                         'enter an integer\n')
         return None
 
 
 def serve_cards(integers_to_practice: List[int],
                 player_name: str = '') -> None:
-    """Generate and serve the multiplication tables."""
+    """Generate and serve the multiplication tables.
+
+    :param integers_to_practice: The integers of multiplication to practice.
+    :type integers_to_practice: List[int]
+    :parm player_name: The name of the player
+    :type player_name: str
+    :return: None
+    :rtype: None
+    """
     table = get_random_table(include_list=integers_to_practice)
     if player_name != '':
         print_and_speak(f"Hello {player_name:s}. Let's get started!\n",
@@ -262,8 +275,12 @@ def serve_cards(integers_to_practice: List[int],
     speak_all_done_info(num_correct, num_attempts, wrong_answers)
 
 
-def main():
-    """Parse args and serve cards."""
+def parse_and_serve():
+    """Parse command line arguments and serve cards.
+
+    :return: None
+    :rtype: None
+    """
     # Argparse for command line interface
     parser = argparse.ArgumentParser(description="Sophia's Multiplication " +
                                      "Flash Cards")
@@ -274,6 +291,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    # Parse arguments and serve_the_cards
+    parse_and_serve()
     # Exit cleanly
     sys_exit(0)
