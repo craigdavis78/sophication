@@ -104,47 +104,29 @@ def test_convert_str_to_int_stdout(test_input: str, expected: None,
 
 # Inputs for test_print_and_speak_*
 PRINT_AND_SPEAK_TEST_VALS = \
-    [{'phrase': 'test phrase',
-      'end': '\n',
-      'replace_speech': ['', ''],
-      'forecolor': None,
-      'backcolor': None,
+    [{'phrase': 'test phrase\n',
+      'replace_speech': ('', ''),
+      'colors': (None, None),
       'run_in_own_process': False,
       'speak': False,
-      'return_val': 'test phrase',
+      'return_val': 'test phrase\n',
       'stdout_val': 'test phrase\n'},
-     {'phrase': 'test phrase',
-      'end': '!',
-      'replace_speech': ['phrase', 'test phrase'],
-      'forecolor': None,
-      'backcolor': back_c.GREEN,
+     {'phrase': 'test phrase!',
+      'replace_speech': ('phrase', 'test phrase'),
+      'colors': (None, back_c.GREEN),
       'run_in_own_process': False,
       'speak': False,
-      'return_val': 'test test phrase',
-      'stdout_val': back_c.GREEN + 'test phrase' + back_c.RESET + '!'},
-     {'phrase': 'test phrase',
-      'end': '\n',
-      'replace_speech': ['', ''],
-      'forecolor': fore_c.RED,
-      'backcolor': back_c.LIGHTWHITE_EX,
+      'return_val': 'test test phrase!',
+      'stdout_val': back_c.GREEN + 'test phrase!' + back_c.RESET},
+     {'phrase': 'test phrase\n',
+      'replace_speech': ('', ''),
+      'colors': (fore_c.RED, back_c.LIGHTWHITE_EX),
       'run_in_own_process': False,
       'speak': False,
-      'return_val': 'test phrase',
-      'stdout_val': (back_c.LIGHTWHITE_EX + fore_c.RED + 'test phrase' +
-                     fore_c.RESET + back_c.RESET + '\n')}
+      'return_val': 'test phrase\n',
+      'stdout_val': (back_c.LIGHTWHITE_EX + fore_c.RED + 'test phrase\n' +
+                     fore_c.RESET + back_c.RESET)}
      ]
-# PRINT_AND_SPEAK_TEST_VALS = \
-#     [{'phrase': 'test phrase',
-#       'end': '\n',
-#       'replace_speech': ['', ''],
-#       'forecolor': fore_c.RED,
-#       'backcolor': back_c.LIGHTWHITE_EX,
-#       'run_in_own_process': False,
-#       'speak': False,
-#       'return_val': 'test phrase',
-#       'stdout_val': (back_c.LIGHTWHITE_EX + fore_c.RED + 'test phrase' +
-#                      fore_c.RESET + back_c.RESET + '\n')}
-#      ]
 
 # Name of the parameters with default argument of the print_and_speak function.
 P_AND_S_PARAMS_KEYS = \

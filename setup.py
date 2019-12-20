@@ -4,6 +4,18 @@ import setuptools
 with open("README.md", "r") as file_reader:
     long_description = file_reader.read()
 
+install_requires = [
+    'colorama',
+    'pyttsx3'
+]
+
+tests_require = [
+    'pytest',
+    'pydocstyle',
+    'bandit',
+
+]
+
 setuptools.setup(
     name="sophication",
     version="0.0.2",

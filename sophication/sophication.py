@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """A program for Sophia to practice her multiplication tables."""
 # Python Standard Library Imports
 import argparse
@@ -9,9 +8,9 @@ from random import sample
 from typing import List, Tuple, Union, Any, NewType
 
 # Third Party Library Imports
-from colorama import Fore, Back, init as colorama_init
+from colorama import Fore, Back, init as colorama_init  # type: ignore
 try:
-    import pyttsx3
+    import pyttsx3  # type: ignore
 except ImportError:
     pyttsx3 = None
 
@@ -41,6 +40,10 @@ def get_random_products(max_val: int) -> \
     Creates a list of randomly sampled cartesian products tuples up to the
     value of max_val.
 
+    :param max_val: The maximum integer up to which cartesian products will be
+    generated
+    :type max_val: int
+
     Example
     Note that the results will not necessarily be in this order.
 
@@ -48,8 +51,7 @@ def get_random_products(max_val: int) -> \
     [(0, 0), (0, 1), (1, 0), (1, 1)]
 
     """
-    nums = [i for i in range(max_val)]
-    prods = [val for val in product(nums, repeat=2)]
+    prods = set(product(range(max_val), repeat=2))
     return sample(prods, len(prods))
 
 
@@ -60,6 +62,14 @@ def filter_tuple_list(include_list: List[int],
 
     Filters tuple_list to include only the tuples that contain integers from
     include_list.
+
+    :param include_list: List of integers to filter by
+    :type include_list: List[int]
+    :param tuple_list: List of tuples of integers to filter
+    :type tuple_list: List[Tuple[Any, ...]]
+    :return: A filtered list of tuples that only contain integers from
+        include_list
+    :rtype: List[Tuple[Any, ...]]
     """
     return_list = []
     for prod in tuple_list:
@@ -74,13 +84,13 @@ def get_random_table(include_list: List[int],
                      max_val: int = 10) -> List[Tuple[Any, ...]]:
     """Create a list of randomly sorted tuples for multiplication.
 
-    INPUTS:
-    include_list: The integers of multiplication to practice.
-    max_val: The maximum value to generate.
-
-    OUTPUTS:
-    Returns a list of randomly sorted integers based on include_list and
-    max_val
+    :param include_list: The integers of multiplication to practice.
+    :type include_list: List[int]
+    :max_val: The maximum value to generate.
+    :type max_val: int
+    :return: A list of randomly sorted integers based on include_list and
+        max_val
+    :rtype: List[Tuple[Any, ...]]
     """
     # Get a list of randomly sampled tuples from 0 to max_val.
     random_products = get_random_products(max_val)
@@ -90,7 +100,13 @@ def get_random_table(include_list: List[int],
 
 
 def speak_string(string_to_speak: str) -> None:
-    """Speak a string (assuming win32com in installed)."""
+    """Speak a string (assuming win32com in installed).
+
+    :param string_to_speak: The string to speak, if available on the system.
+    :type string_to_speak: str
+    :return: None
+    :rtype: None
+    """
     # Put this function in a try/except because it is called from a subprocess
     try:
         engine = pyttsx3.init()
@@ -102,26 +118,45 @@ def speak_string(string_to_speak: str) -> None:
 
 
 def print_and_speak(phrase: str,
-                    end: str = '\n',
-                    replace_speech: List[str] = ['', ''],
-                    forecolor: Union[None, ForeColorType] = None,
-                    backcolor: Union[None, BackColorType] = None,
-                    run_in_own_process=True,
+                    replace_speech: Tuple[str, str] = ('', ''),
+                    colors: Tuple[Union[None, ForeColorType],
+                                  Union[None, BackColorType]] = (None, None),
+                    run_in_own_process: bool = True,
                     speak: bool = True) \
                     -> Union[None, str]:
     """Print an optionally speak the phrase.
 
     Print the "phrase" with the end of line character "endl". Then speak
     the phrase Replace the characters replace_speech[0] with replace[1] before
-    speaking the phrase
+    speaking the phrase.
+
+    :param phrase: The phrase to print and speak
+    :type phrase: str
+    :param replace_speech: A tuple used to replace a characters in phrase.
+    :type replace_speech: Tuple[str, str]
+    :param colors: The colors to to use for foreground and background text
+        colors.  Passed like this, (forground_color, background_color).
+    :type colors: Tuple[Union[None, ForeColorType], Union[None, BackColorType]]
+    :param run_in_own_process: Boolean to indicate whether to run the speaking
+        in it's own process. This can alleviate some lag in, however, words
+        can get garbled together if not careful.
+    :type run_in_own_process:
+    :param speak: Boolean that indicates whether or not to speak. This is set
+        to false if a text-only mode is desired.
+    :type speak: bool
+    :return: The phrase that was spoken, if it was spoken at all. The returned
+        value will have had replace_speech applied.
+    :rtype: Union[None, str]
     """
     # Print the Phrase
     phrase_printed = phrase
-    if forecolor:
+    forecolor = colors[0]
+    backcolor = colors[1]
+    if forecolor is not None:
         phrase_printed = forecolor + phrase_printed + CLR_FORE_RESET
-    if backcolor:
+    if backcolor is not None:
         phrase_printed = backcolor + phrase_printed + CLR_BACK_RESET
-    print(phrase_printed, flush=True, end=end)
+    print(phrase_printed, flush=True, end='')
 
     # Speak the phrase
     phrase_spoken: Union[None, str] = None
@@ -130,8 +165,8 @@ def print_and_speak(phrase: str,
         # The bool speak is an override for testing
         if speak:
             if run_in_own_process:
-                p = Process(target=speak_string, args=(phrase_spoken, ))
-                p.start()
+                process = Process(target=speak_string, args=(phrase_spoken, ))
+                process.start()
             else:
                 speak_string(phrase_spoken)
     return phrase_spoken
@@ -141,17 +176,29 @@ def speak_all_done_info(num_correct: int,
                         num_attempts: int,
                         wrong_answers: Union[List[None],
                                              List[Tuple[int, int]],
-                                             List[Tuple[Any, ...]]]) -> \
-                        None:
-    """Print and speak info when program completes."""
-    print_and_speak('\nALL DONE!', run_in_own_process=False)
-    print_and_speak(f'\nYou got {num_correct:2} out of {num_attempts:d}.',
+                                             List[Tuple[Any, ...]]]) \
+                        -> None:
+    """Print and speak info when program completes.
+
+    :param num_correct: The number the person got correct.
+    :type num_correct: int
+    :param num_attempts: The number of times the person answered a question.
+    :type num_attempts: int
+    :param wrong_answers: A list of wrong answers.
+    :type wrong_answers: Union[List[None],
+                               List[Tuple[int, int],
+                               List[Tuple[Any, ...]]]]
+    :return: None
+    :rtype: None
+    """
+    print_and_speak('\nALL DONE!\n', run_in_own_process=False)
+    print_and_speak(f'\nYou got {num_correct:2} out of {num_attempts:d}.\n',
                     run_in_own_process=False)
-    print_and_speak(f'Your score is {num_correct/num_attempts*100:.1f}% ',
-                    replace_speech=['%', ' percent'],
+    print_and_speak(f'Your score is {num_correct/num_attempts*100:.1f}% \n',
+                    replace_speech=('%', ' percent'),
                     run_in_own_process=False)
     if wrong_answers:
-        print_and_speak('You got these wrong:', run_in_own_process=False)
+        print_and_speak('You got these wrong:\n', run_in_own_process=False)
         wrong: Tuple[int, int]
         for wrong in set(wrong_answers):  # type: ignore
             print(f'{wrong[0]:d} x {wrong[1]:d} ' +
@@ -168,7 +215,7 @@ def convert_str_to_int(answer: str) -> Union[int, None]:
         return int(answer)
     except ValueError:
         print_and_speak(f'{answer} is not a valid input. Please ' +
-                        'enter an integer')
+                        'enter an integer\n')
         return None
 
 
@@ -177,7 +224,7 @@ def serve_cards(integers_to_practice: List[int],
     """Generate and serve the multiplication tables."""
     table = get_random_table(include_list=integers_to_practice)
     if player_name != '':
-        print_and_speak(f"Hello {player_name:s}. Let's get started!",
+        print_and_speak(f"Hello {player_name:s}. Let's get started!\n",
                         run_in_own_process=False)
     num_correct = 0  # The number correct on the first try
     correct_answers = []
@@ -186,26 +233,27 @@ def serve_cards(integers_to_practice: List[int],
     for idx, val in enumerate(table):
         num_tries = 0
         try:
-            while True:
-                print_and_speak(f'{val[0]:d} x {val[1]:d} = ', end='',
-                                replace_speech=[' x ', ' times '])
+            answer_is_incorrect = True
+            while answer_is_incorrect:
+                print_and_speak(f'{val[0]:d} x {val[1]:d} = ',
+                                replace_speech=(' x ', ' times '))
                 num_attempts = idx + 1  # The number of cards attempted
                 answer = convert_str_to_int(input())  # nosec
                 correct_answer = val[0]*val[1]
                 if answer == correct_answer:
-                    print_and_speak('CORRECT!', replace_speech=['!', ''],
-                                    forecolor=ForeColorType(CLR_FORE_CORRECT),
-                                    backcolor=BackColorType(CLR_BACK_CORRECT),
+                    print_and_speak('CORRECT!\n', replace_speech=('!', ''),
+                                    colors=(ForeColorType(CLR_FORE_CORRECT),
+                                            BackColorType(CLR_BACK_CORRECT)),
                                     run_in_own_process=False)
                     if num_tries == 0:
                         num_correct += 1
                         correct_answers.append(val)
-                    break
+                    answer_is_incorrect = False
                 else:
-                    print_and_speak('Wrong!  :(',
-                                    replace_speech=['!  :(', ''],
-                                    forecolor=ForeColorType(CLR_FORE_WRONG),
-                                    backcolor=BackColorType(CLR_BACK_WRONG),
+                    print_and_speak('Wrong!  :(\n',
+                                    replace_speech=('!  :(', ''),
+                                    colors=(ForeColorType(CLR_FORE_WRONG),
+                                            BackColorType(CLR_BACK_WRONG)),
                                     run_in_own_process=False)
                     wrong_answers.append(val)
                     num_tries += 1
@@ -214,7 +262,8 @@ def serve_cards(integers_to_practice: List[int],
     speak_all_done_info(num_correct, num_attempts, wrong_answers)
 
 
-if __name__ == '__main__':
+def main():
+    """Parse args and serve cards."""
     # Argparse for command line interface
     parser = argparse.ArgumentParser(description="Sophia's Multiplication " +
                                      "Flash Cards")
@@ -222,5 +271,9 @@ if __name__ == '__main__':
     parser.add_argument('--name', type=str)
     args = parser.parse_args()
     serve_cards(args.integers, player_name=args.name)
+
+
+if __name__ == '__main__':
+    main()
     # Exit cleanly
     sys_exit(0)
